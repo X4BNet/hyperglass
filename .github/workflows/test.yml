@@ -55,7 +55,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
+        uses: X4BNet/actions-poetry@v2.0.0
         with:
           poetry-version: ${{ matrix.poetry-version }}
 
@@ -65,7 +65,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Start Redis
-        uses: supercharge/redis-github-action@1.1.0
+        uses: X4BNet/redis-github-action@1.1.0
         with:
           redis-version: ${{ matrix.redis-version }}
 
