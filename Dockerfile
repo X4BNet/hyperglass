@@ -1,5 +1,5 @@
 ARG HYPERGLASS_PATH=/opt/hyperglass
-FROM python:3 AS base
+FROM python:3.8 AS base
 
 # TODO nodejs and yarn are required during "build-ui", but also at runtime (in "start")
 #      To my understanding the runtime requirement should be removed, because it should only be used in "build-ui"
