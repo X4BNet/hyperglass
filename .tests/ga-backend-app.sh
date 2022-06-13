@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+mkdir -p $HOME/hyperglass
+
 LOG_FILE="$HOME/hyperglass-ci.log"
 
 export POETRY_HYPERGLASS_UI_BUILD_TIMEOUT="600"

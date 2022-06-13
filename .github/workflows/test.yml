@@ -92,3 +92,38 @@ jobs:
 
       - name: Run hyperglass
         run: "sudo bash ./install.sh"
+
+  build_container:
+    needs: [ frontend, backend, installer ]
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: hyperglass
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          docker build . --build-arg arg_k8s_application_commit=${{ github.sha }} --build-arg arg_k8s_application_version=${{ github.ref }} --tag $IMAGE_NAME
+      - name: Log into registry
+        run: echo "${{ secrets.dockerhub_token }}" | docker login -u x4bnet --password-stdin
+
+      - name: Push image
+        shell: bash
+        run: |
+          IMAGE_ID=x4bnet/$IMAGE_NAME
+
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [ "$VERSION" == "main" ] && VERSION=latest
+
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+          if [[ "$VERSION" == "latest" ]]; then
+            docker tag $IMAGE_NAME $IMAGE_ID:git-${{ github.sha }}
+            docker push $IMAGE_ID:git-${{ github.sha }}
+          fi
