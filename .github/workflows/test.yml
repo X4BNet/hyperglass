@@ -1,7 +1,38 @@
-name: Backend Testing
+name: Tests
 on: [push, pull_request]
 
 jobs:
+  frontend:
+    name: Frontend Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [14.x]
+        os: [ubuntu-20.04]
+    runs-on: ${{ matrix.os }}
+    env:
+      working-directory: ./hyperglass/ui
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Dependencies
+        working-directory: ${{ env.working-directory }}
+        run: yarn install
+
+      - name: TypeScript
+        run: ./.tests/pre-commit-frontend.sh --typescript
+
+      - name: ESLint
+        run: ./.tests/pre-commit-frontend.sh --eslint
+
+      - name: Prettier
+        run: ./.tests/pre-commit-frontend.sh --prettier
   backend:
     name: Backend Tests
     strategy:
@@ -46,3 +77,18 @@ jobs:
 
       - name: Run hyperglass
         run: '.tests/ga-backend-app.sh'
+
+  installer:
+    name: Installer Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v2
+
+      - name: Run hyperglass
+        run: "sudo bash ./install.sh"
