@@ -33,8 +33,8 @@ FROM base AS app
 ARG HYPERGLASS_PATH
 
 COPY --from=builder /usr/local/src/hyperglass/dist/ /tmp/build
-RUN cd /tmp/build/ && pip install hyperglass*.whl
-RUN useradd -s /usr/sbin/nologin hyperglass
+RUN cd /tmp/build/ && pip install hyperglass*.whl && \
+    useradd -s /usr/sbin/nologin hyperglass
 COPY --from=builder --chown=hyperglass:hyperglass ${HYPERGLASS_PATH} ${HYPERGLASS_PATH}
 COPY --chown=hyperglass:hyperglass ./hyperglass/examples/hyperglass.docker.yaml ${HYPERGLASS_PATH}/hyperglass.yaml
 # TODO Log to stderr by default instead of to /tmp/hyperglass.log
