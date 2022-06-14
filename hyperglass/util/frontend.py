@@ -307,7 +307,7 @@ async def build_frontend(  # noqa: C901
     if initialized:
         log.debug("node_modules is already initialized")
 
-    elif not initialized:
+    else:
         log.debug("node_modules has not been initialized. Starting initialization...")
 
         node_setup = await node_initial(timeout, dev_mode)
