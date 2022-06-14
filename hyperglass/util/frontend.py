@@ -127,7 +127,7 @@ async def build_ui(app_path):
     ui_dir = Path(__file__).parent.parent / "ui"
     build_dir = app_path / "static" / "ui"
 
-    update_broserlist_command = "npx browserslist@latest --update-db"
+    update_broserlist_command = "yarn upgrade caniuse-lite browserslist"
     build_command = "node_modules/.bin/next build"
     export_command = "node_modules/.bin/next export -o {f}".format(f=build_dir)
 
