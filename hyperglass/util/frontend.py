@@ -127,11 +127,12 @@ async def build_ui(app_path):
     ui_dir = Path(__file__).parent.parent / "ui"
     build_dir = app_path / "static" / "ui"
 
+    update_broserlist_command = "npx browserslist@latest --update-db"
     build_command = "node_modules/.bin/next build"
     export_command = "node_modules/.bin/next export -o {f}".format(f=build_dir)
 
     all_messages = []
-    for command in (build_command, export_command):
+    for command in (update_broserlist_command, build_command, export_command):
         try:
             proc = await asyncio.create_subprocess_shell(
                 cmd=command,
