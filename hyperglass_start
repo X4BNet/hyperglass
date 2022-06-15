@@ -1,5 +1,6 @@
 #!/bin/bash
 
 cp /opt/hyperglass/ssh.key /tmp/ssh.key
+chmod 0400 /tmp/ssh.key
 
 hyperglass start
