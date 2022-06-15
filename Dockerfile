@@ -34,7 +34,8 @@ ARG HYPERGLASS_PATH
 
 COPY --from=builder /usr/local/src/hyperglass/dist/ /tmp/build
 RUN cd /tmp/build/ && pip install hyperglass*.whl && \
-    useradd -s /usr/sbin/nologin hyperglass
+    useradd -s /usr/sbin/nologin hyperglass && \
+    pip3 install -Iv asyncssh==2.8.1
 
 COPY --from=builder --chown=hyperglass:hyperglass /usr/local/lib/python3.8/site-packages/hyperglass/ui/node_modules /usr/local/lib/python3.8/site-packages/hyperglass/ui/node_modules
 COPY --from=builder --chown=hyperglass:hyperglass ${HYPERGLASS_PATH} ${HYPERGLASS_PATH}
