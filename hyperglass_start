@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cp /opt/hyperglass/ssh.key /tmp/ssh.key
+
+hyperglass start
