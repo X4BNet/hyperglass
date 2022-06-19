@@ -3,3 +3,9 @@ cache:
   port: 6379
   timeout: 15
 listen_address: 0.0.0.0
+web:
+  links:
+  - title: "X4B Looking Glass"
+    url: "https://lg.x4b.net"
+  - title: "X4B"
+    url: "https://x4b.net"
