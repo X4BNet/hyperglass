@@ -62,10 +62,10 @@ async def write_env(variables: Dict) -> str:
 async def clear_redis_cache(db: int, config: Dict) -> bool:
     """Clear the Redis cache."""
     # Third Party
-    import aredis
+    import yaaredis
 
     try:
-        redis_instance = aredis.StrictRedis(db=db, **config)
+        redis_instance = yaaredis.StrictRedis(db=db, **config)
         await redis_instance.flushdb()
     except Exception as e:
         raise RuntimeError(f"Error clearing cache: {str(e)}") from None

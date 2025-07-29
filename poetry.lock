@@ -38,17 +38,6 @@ files = [
 ]
 
 [[package]]
-name = "aredis"
-version = "1.1.8"
-description = "Python async client for Redis key-value store"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "aredis-1.1.8.tar.gz", hash = "sha256:880bcf91c4f89b919311cc93626bbc70901c6e5c4fdb3dcba643411e3ee40bcf"},
-]
-
-[[package]]
 name = "asgiref"
 version = "3.6.0"
 description = "ASGI specs, helper code, and adapters"
@@ -2165,7 +2154,30 @@ files = [
     {file = "xmltodict-0.12.0.tar.gz", hash = "sha256:50d8c638ed7ecb88d90561beedbf720c9b4e851a9fa6c47ebd64e99d166d8a21"},
 ]
 
+[[package]]
+name = "yaaredis"
+version = "3.0.0"
+description = "Python async client for Redis key-value store"
+optional = false
+python-versions = ">=3.6,<4.0"
+groups = ["main"]
+files = [
+    {file = "yaaredis-3.0.0-cp310-cp310-macosx_12_0_x86_64.whl", hash = "sha256:7a972b5ed6255903458895712ac7df16df6bcdd1398333d568743f8de1c18126"},
+    {file = "yaaredis-3.0.0-cp310-cp310-manylinux_2_31_x86_64.whl", hash = "sha256:bc1d640693749c57fcd97a826c5e45dc14a88a15d24503c0c445f5bf34867d54"},
+    {file = "yaaredis-3.0.0-cp36-cp36m-manylinux_2_31_x86_64.whl", hash = "sha256:988236d9cb80bc590d5e42b1305bc53e8a8eeacee35f752222e9968df4cefcee"},
+    {file = "yaaredis-3.0.0-cp37-cp37m-macosx_12_0_x86_64.whl", hash = "sha256:a77f33b99c1581ea8cfd72115f3a03698a3acc414eeec0c14390655bf02bf7b5"},
+    {file = "yaaredis-3.0.0-cp37-cp37m-manylinux_2_31_x86_64.whl", hash = "sha256:b612c4db5d2dc57b210a16f4e593d6650bd321e929fbbf1650c4aa6cc602aa0a"},
+    {file = "yaaredis-3.0.0-cp38-cp38-macosx_12_0_x86_64.whl", hash = "sha256:935263de853f3d18f8a3b6dc3f4b8ca8c78107c2e4bd25712a2143e4831a2cc3"},
+    {file = "yaaredis-3.0.0-cp38-cp38-manylinux_2_31_x86_64.whl", hash = "sha256:224f716cbf09bf16abe0d8c116bac3416ad6a9753726d426430ccc67d6757528"},
+    {file = "yaaredis-3.0.0-cp39-cp39-macosx_12_0_x86_64.whl", hash = "sha256:bb656e1b8c16264297bb4a84c999bcdc750c98806e6af8225d1dde2314a53230"},
+    {file = "yaaredis-3.0.0-cp39-cp39-manylinux_2_31_x86_64.whl", hash = "sha256:b487511ab5875942fd61506a31d616eb2fb9931e2bb5dd6ef98984d660abe151"},
+    {file = "yaaredis-3.0.0.tar.gz", hash = "sha256:d459912a84c035e6173cfb595b7fe52bbaecba3198c8b19f051112c42ec4b4b9"},
+]
+
+[package.extras]
+hiredis = ["hiredis (>=0.2.0,<3.0.0)"]
+
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.8,<4.0"
-content-hash = "ac4ae1adb96514aad9ec3e72f424276ea520d1356962483c2cccfc243e1895d3"
+content-hash = "75a8c9336b0e9fac11bcd901e8531dcc3e5a4c7346a469a9ba23e057e2f2a9e9"

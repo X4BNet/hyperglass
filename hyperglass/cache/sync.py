@@ -57,7 +57,7 @@ class SyncCache(BaseCache):
                 ) from None
             else:
                 raise HyperglassError(
-                    "Unable to connect to Redis server {server}".format(
+                    "Unable to connect to Redis cache {server}".format(
                         server=repr(self)
                     ),
                     level="danger",

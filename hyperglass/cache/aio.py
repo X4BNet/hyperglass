@@ -8,9 +8,9 @@ import asyncio
 from typing import Any, Dict
 
 # Third Party
-from aredis import StrictRedis as AsyncRedis
-from aredis.pubsub import PubSub as AsyncPubSub
-from aredis.exceptions import RedisError
+from yaaredis import StrictRedis as AsyncRedis
+from yaaredis.pubsub import PubSub as AsyncPubSub
+from yaaredis.exceptions import RedisError
 
 # Project
 from hyperglass.cache.base import BaseCache
@@ -57,6 +57,7 @@ class AsyncCache(BaseCache):
                     level="danger",
                 ) from None
             else:
+                print(err_msg)
                 raise HyperglassError(
                     "Unable to connect to Redis server {server}".format(
                         server=repr(self)
@@ -120,7 +121,7 @@ class AsyncCache(BaseCache):
         return None
 
     async def pubsub(self) -> AsyncPubSub:
-        """Provide an aredis.pubsub.Pubsub instance."""
+        """Provide an yaaredis.pubsub.Pubsub instance."""
         return self.instance.pubsub()
 
     async def pub(self, key: str, value: str) -> None:
