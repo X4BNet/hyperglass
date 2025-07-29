@@ -50,7 +50,15 @@ COPY hyperglass_start /hyperglass_start
 #      This is undesired, uncomment the next line once fixed
 # USER hyperglass
 
+FROM python:3.8
+
+COPY --from=app / /
+
+ARG HYPERGLASS_PATH
+
 ENV HYPERGLASS_PATH ${HYPERGLASS_PATH}
+
+RUN hyperglass build-ui
 
 EXPOSE 8001
 CMD ["/hyperglass_start"]
