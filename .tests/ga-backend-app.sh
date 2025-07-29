@@ -32,7 +32,7 @@ fi
 
 echo "[INFO] Starting hyperglass..."
 poetry run hyperglass start &> $LOG_FILE &
-sleep 120
+sleep 30
 
 if [[ ! $? == 0 ]]; then
     echo "[ERROR] Failed to start hyperglass."
