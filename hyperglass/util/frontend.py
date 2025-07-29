@@ -284,13 +284,9 @@ async def build_frontend(  # noqa: C901
 
     env_file = Path("/tmp/hyperglass.env.json")  # noqa: S108
 
-    package_json = await read_package_json()
-
     env_vars = {
         "_HYPERGLASS_CONFIG_": params,
-        "_HYPERGLASS_VERSION_": __version__,
-        "_HYPERGLASS_PACKAGE_JSON_": package_json,
-        "_HYPERGLASS_APP_PATH_": str(app_path),
+        "_HYPERGLASS_VERSION_": __version__
     }
 
     # Set NextJS production/development mode and base URL based on
