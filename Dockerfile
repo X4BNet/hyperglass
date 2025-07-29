@@ -14,7 +14,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
 FROM base AS builder
 ARG HYPERGLASS_PATH
 
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+RUN curl -sSL https://install.python-poetry.org | python3 -
 RUN mkdir -p /usr/local/src/hyperglass ${HYPERGLASS_PATH}
 # TODO Only COPY the files that are required for the build
 #      Keep .dockerignore in mind too
