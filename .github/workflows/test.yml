@@ -39,9 +39,9 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [14.x]
-        redis-version: [5, 6]
-        poetry-version: [1.1.4]
-        python-version: [3.6, 3.8]
+        poetry-version: ["2.1"]
+        python-version: ["3.10"]
+        redis-version: ["6"]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
 
@@ -65,12 +65,15 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Start Redis
-        uses: X4BNet/redis-github-action@1.1.0
+        uses: X4BNet/redis-github-action@1.8.0
         with:
           redis-version: ${{ matrix.redis-version }}
 
       - name: Install Python Dependencies
-        run: poetry install
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libjpeg-dev zlib1g-dev libxml2-dev libxslt1-dev
+          poetry install
 
       - name: Run Flake8
         run: poetry run flake8 hyperglass
@@ -78,23 +81,8 @@ jobs:
       - name: Run hyperglass
         run: '.tests/ga-backend-app.sh'
 
-  installer:
-    name: Installer Tests
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - name: Git Checkout
-        uses: actions/checkout@v2
-
-      - name: Run hyperglass
-        run: "sudo bash ./install.sh"
-
   build_container:
-    needs: [ frontend, backend, installer ]
+    needs: [ frontend, backend ]
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: hyperglass

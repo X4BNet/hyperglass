@@ -1,5 +1,5 @@
 ARG HYPERGLASS_PATH=/opt/hyperglass
-FROM python:3.8 AS base
+FROM python:3.10 AS base
 
 # TODO nodejs and yarn are required during "build-ui", but also at runtime (in "start")
 #      To my understanding the runtime requirement should be removed, because it should only be used in "build-ui"
@@ -8,7 +8,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
  && curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /usr/share/keyrings/yarnkey.gpg >/dev/null \
  && echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list \
  && apt update \
- && apt install -y nodejs yarn \
+ && apt install -y nodejs yarn libjpeg-dev zlib1g-dev \
  && rm -rf /var/lib/apt/lists/*
 
 FROM base AS builder
@@ -50,7 +50,7 @@ COPY hyperglass_start /hyperglass_start
 #      This is undesired, uncomment the next line once fixed
 # USER hyperglass
 
-FROM python:3.8
+FROM python:3.10
 
 COPY --from=app / /
 

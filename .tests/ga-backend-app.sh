@@ -45,7 +45,7 @@ fi
 
 echo "[INFO] Running HTTP test..."
 
-STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001)
+STATUS=$(timeout 10s curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001)
 
 echo "[INFO] Status code: $STATUS"
 
