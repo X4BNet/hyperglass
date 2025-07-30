@@ -325,7 +325,6 @@ async def build_frontend(  # noqa: C901
         ) as favicons:
             await favicons.generate()
             log.debug("Generated {} favicons", favicons.completed)
-            env_vars.update({"_HYPERGLASS_FAVICONS_": favicons.formats()})
 
         env_json = json.dumps(env_vars, default=str)
 
