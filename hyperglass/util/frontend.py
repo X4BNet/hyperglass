@@ -326,6 +326,7 @@ async def build_frontend(  # noqa: C901
             await favicons.generate()
             log.debug("Generated {} favicons", favicons.completed)
 
+        print(json.dumps(env_vars, default=str))
         env_json = json.dumps(env_vars, default=str)
 
         # Create SHA256 hash from all parameters passed to UI, use as
