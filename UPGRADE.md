@@ -16,7 +16,7 @@ docker build --build-arg APPLICATION_REVISION="$(git rev-parse HEAD)" -t hypergl
 
 The migration test command uses isolated Redis and mocks router access and containing-prefix lookup. The smoke test uses a network without internet access, checks mounted-key permissions and static assets, then verifies restart and graceful shutdown. It performs no router queries.
 
-CI runs the backend suite/Ruff and frontend formatting/Biome/TypeScript/Vitest before building and smoke-testing the application image. Only trusted pushes to `main` or `v*` tags publish `x4bnet/hyperglass:git-<application-sha>`; `main` also publishes `latest`. Deploy using the reported digest. PRs never publish images or deploy.
+CI runs the backend suite/Ruff and frontend formatting/Biome/TypeScript/Vitest before building and smoke-testing the application image. Only trusted pushes to `main` or `v*` tags publish `x4bnet/hyperglass:git-<application-sha>`; `main` also publishes `latest`. Deploy with the `git-<application-sha>` tag; the deployment workflow verifies it against the published digest and source revision. PRs never publish images or deploy.
 
 ## Configuration and deployment
 
