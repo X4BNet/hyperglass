@@ -24,7 +24,7 @@ The coordinated change in `X4BNet/k8s-hyperglass` owns devices, directives, the 
 
 Runtime defaults bind `0.0.0.0:8001`, use local Redis, keep the UI enabled, and run two workers. Compose overrides Redis to the service hostname. The old `HYPERGLASS_PATH`, `hyperglass.yaml`, `commands.yaml`, and VRF configuration are replaced by upstream v2 settings and directives. The API accepts device and directive IDs; no v1 API compatibility layer is included.
 
-See the deployment repository's `UPGRADE.md` for preview, cutover, rollback, and the validation record. Its GitOps renderer preserves the old deployment and its Secret while adding v2. Do not replace the old Secret with v2 configuration.
+See the deployment repository's `UPGRADE.md` for deployment, rollback, and the validation record. The upgrade updates the existing `hyperglass` StatefulSet, Service, and configuration Secret. Trusted configuration pushes deploy development; production changes use the existing GitOps release process.
 
 ## Deliberate compatibility choices
 
