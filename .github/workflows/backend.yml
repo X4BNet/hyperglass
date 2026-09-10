@@ -1,0 +1,35 @@
+name: Backend Testing
+on:
+  workflow_call:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7.4.7-alpine@sha256:02f2cc4882f8bf87c79a220ac958f58c700bdec0dfb9b9ea61b62fb0e8f1bfcf
+        ports: ['6379:6379']
+        options: --health-cmd "redis-cli ping" --health-interval 5s --health-retries 12
+    env:
+      HYPERGLASS_APP_PATH: ${{ github.workspace }}/.cache/config
+      HYPERGLASS_HOST: 127.0.0.1
+      HYPERGLASS_REDIS_DB: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libcairo2-dev pkg-config
+          mkdir -p "$HYPERGLASS_APP_PATH"
+          pip install hatchling==1.24.2 editables==0.5 setuptools==69.2.0 wheel==0.43.0
+          pip install --no-deps --no-build-isolation -r requirements-dev.lock
+          pip check
+      - run: ruff check hyperglass
+      - run: pytest hyperglass --ignore hyperglass/plugins/external

@@ -1,0 +1,22 @@
+services:
+  redis:
+    image: redis:7.4.7-alpine@sha256:02f2cc4882f8bf87c79a220ac958f58c700bdec0dfb9b9ea61b62fb0e8f1bfcf
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+  hyperglass:
+    build: .
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      HYPERGLASS_REDIS_HOST: redis
+      HYPERGLASS_HOST: 0.0.0.0
+      HYPERGLASS_PORT: 8001
+      HYPERGLASS_DISABLE_UI: 'false'
+    ports:
+      - '8001:8001'
+    volumes:
+      - ${HYPERGLASS_APP_PATH:-/etc/hyperglass}:/etc/hyperglass

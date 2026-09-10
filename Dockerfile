@@ -1,64 +1,37 @@
-ARG HYPERGLASS_PATH=/opt/hyperglass
-FROM python:3.10 AS base
+FROM node:22.22.0-bookworm-slim@sha256:dd9d21971ec4395903fa6143c2b9267d048ae01ca6d3ea96f16cb30df6187d94 AS node
 
-# TODO nodejs and yarn are required during "build-ui", but also at runtime (in "start")
-#      To my understanding the runtime requirement should be removed, because it should only be used in "build-ui"
-#      Once fixed, this RUN can be moved to the builder stage instead
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
- && curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /usr/share/keyrings/yarnkey.gpg >/dev/null \
- && echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list \
- && apt update \
- && apt install -y nodejs yarn libjpeg-dev zlib1g-dev \
- && rm -rf /var/lib/apt/lists/*
+FROM python:3.12.12-slim-bookworm@sha256:593bd06efe90efa80dc4eee3948be7c0fde4134606dd40d8dd8dbcade98e669c AS dependencies
+WORKDIR /opt/hyperglass
+COPY --from=node /usr/local/ /usr/local/
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential pkg-config libcairo2-dev libffi-dev curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+RUN npm install --global pnpm@10.11.0
+ENV HYPERGLASS_APP_PATH=/etc/hyperglass \
+    HYPERGLASS_HOST=0.0.0.0 \
+    HYPERGLASS_PORT=8001 \
+    HYPERGLASS_DEBUG=false \
+    HYPERGLASS_DEV_MODE=false \
+    HYPERGLASS_REDIS_HOST=localhost \
+    HYPERGLASS_DISABLE_UI=false \
+    HYPERGLASS_CONTAINER=true \
+    NEXT_TELEMETRY_DISABLED=1 \
+    CI=true
+RUN mkdir -p /etc/hyperglass/static/images /etc/hyperglass/plugins
+COPY hyperglass/ui/package.json hyperglass/ui/pnpm-lock.yaml hyperglass/ui/pnpm-workspace.yaml ./hyperglass/ui/
+RUN pnpm --dir hyperglass/ui install --frozen-lockfile
+COPY . .
+RUN pip install --no-cache-dir hatchling==1.24.2 editables==0.5 setuptools==69.2.0 wheel==0.43.0 \
+    && pip install --no-cache-dir --no-deps --no-build-isolation -r requirements.lock \
+    && pip check
 
-FROM base AS builder
-ARG HYPERGLASS_PATH
+FROM dependencies AS test
+RUN pip install --no-cache-dir --no-deps --no-build-isolation -r requirements-dev.lock
 
-RUN curl -sSL https://install.python-poetry.org | python3 -
-RUN mkdir -p /usr/local/src/hyperglass ${HYPERGLASS_PATH}
-# TODO Only COPY the files that are required for the build
-#      Keep .dockerignore in mind too
-COPY . /usr/local/src/hyperglass
-WORKDIR /usr/local/src/hyperglass
-RUN /root/.poetry/bin/poetry build
-RUN cd ./dist/ && pip install hyperglass*.whl
-RUN hyperglass setup
-# TODO "build-ui" needs a devices.yaml.
-#      The "build-ui" requirement for devices.yaml should be removed, because to my understanding it's only needed in "start"
-#      Once fixed, this COPY can be moved to the app stage instead
-COPY ./hyperglass/examples/devices.yaml ${HYPERGLASS_PATH}
-RUN hyperglass build-ui
-
-FROM base AS app
-ARG HYPERGLASS_PATH
-
-COPY --from=builder /usr/local/src/hyperglass/dist/ /tmp/build
-RUN cd /tmp/build/ && pip install hyperglass*.whl && \
-    useradd -s /usr/sbin/nologin hyperglass && \
-    pip3 install -Iv asyncssh==2.8.1
-
-COPY --from=builder --chown=hyperglass:hyperglass /usr/local/lib/python3.8/site-packages/hyperglass/ui/node_modules /usr/local/lib/python3.8/site-packages/hyperglass/ui/node_modules
-COPY --from=builder --chown=hyperglass:hyperglass ${HYPERGLASS_PATH} ${HYPERGLASS_PATH}
-COPY --chown=hyperglass:hyperglass ./hyperglass/examples/hyperglass.docker.yaml ${HYPERGLASS_PATH}/hyperglass.yaml
-COPY hyperglass_start /hyperglass_start
-# TODO Log to stderr by default instead of to /tmp/hyperglass.log
-#      RUN ln -sf /dev/stderr /tmp/hyperglass.log
-#      ^ Won't work because stderr isn't seekable
-
-# TODO hyperglass needs to run as root, i.e. because
-#      "EACCES: permission denied, mkdir '/usr/local/lib/python3.9/site-packages/hyperglass/ui/node_modules'"
-#      This is undesired, uncomment the next line once fixed
-# USER hyperglass
-
-FROM python:3.10
-
-COPY --from=app / /
-
-ARG HYPERGLASS_PATH
-
-ENV HYPERGLASS_PATH ${HYPERGLASS_PATH}
-
-RUN hyperglass build-ui
-
+FROM dependencies AS app
+ARG APPLICATION_REVISION=unknown
+LABEL org.opencontainers.image.source="https://github.com/X4BNet/hyperglass" \
+    org.opencontainers.image.revision=$APPLICATION_REVISION \
+    io.x4b.hyperglass.upstream="fd34bda03fe3382cb14a00dc9ec76cf282bc3e0a"
 EXPOSE 8001
-CMD ["/hyperglass_start"]
+CMD ["python3", "-m", "hyperglass.console", "start", "--workers", "2"]
