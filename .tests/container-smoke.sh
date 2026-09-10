@@ -2,6 +2,12 @@
 set -euo pipefail
 image=${1:?Usage: container-smoke.sh IMAGE [CONFIG_DIRECTORY]}
 config_directory=${2:-}
+# Private GitHub runners have two CPUs; never exceed the daemon's capacity.
+available_cpus=$(docker info --format '{{.NCPU}}')
+smoke_cpus=${HYPERGLASS_SMOKE_CPUS:-3}
+if [ "$smoke_cpus" -gt "$available_cpus" ]; then
+  smoke_cpus=$available_cpus
+fi
 smoke_directory=$(mktemp -d)
 smoke_name="hyperglass-smoke-$$"
 cleanup() {
@@ -34,7 +40,7 @@ fi
 chmod 0400 "$smoke_directory/ssh.key"
 docker network create --internal "$smoke_name" >/dev/null
 docker run -d --name "$smoke_name-redis" --network "$smoke_name" redis:7.4.7-alpine@sha256:02f2cc4882f8bf87c79a220ac958f58c700bdec0dfb9b9ea61b62fb0e8f1bfcf >/dev/null
-docker run -d --name "$smoke_name" --network "$smoke_name" --cpus 3 --memory 2g \
+docker run -d --name "$smoke_name" --network "$smoke_name" --cpus "$smoke_cpus" --memory 2g \
   -e "HYPERGLASS_REDIS_HOST=$smoke_name-redis" \
   -v "$smoke_directory/devices.yaml:/etc/hyperglass/devices.yaml:ro" \
   -v "$smoke_directory/directives.yaml:/etc/hyperglass/directives.yaml:ro" \
