@@ -1,0 +1,46 @@
+name: Tests and Container
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  backend:
+    uses: ./.github/workflows/backend.yml
+  frontend:
+    uses: ./.github/workflows/frontend.yml
+  container:
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: hyperglass:ci
+          build-args: APPLICATION_REVISION=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Cold start, offline UI build, restart, and shutdown
+        run: .tests/container-smoke.sh hyperglass:ci
+      - name: Log in to Docker Hub
+        if: github.event_name == 'push' && github.repository == 'X4BNet/hyperglass' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+        uses: docker/login-action@v3
+        with:
+          username: x4bnet
+          password: ${{ secrets.dockerhub_token }}
+      - name: Publish tested application revision
+        if: github.event_name == 'push' && github.repository == 'X4BNet/hyperglass' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+        env:
+          APPLICATION_SHA: ${{ github.sha }}
+          APPLICATION_REF: ${{ github.ref }}
+        run: |
+          docker tag hyperglass:ci "x4bnet/hyperglass:git-$APPLICATION_SHA"
+          docker push "x4bnet/hyperglass:git-$APPLICATION_SHA"
+          if [ "$APPLICATION_REF" = refs/heads/main ]; then
+            docker tag hyperglass:ci x4bnet/hyperglass:latest
+            docker push x4bnet/hyperglass:latest
+          fi
+          docker inspect --format '{{join .RepoDigests "\n"}}' "x4bnet/hyperglass:git-$APPLICATION_SHA" >> "$GITHUB_STEP_SUMMARY"

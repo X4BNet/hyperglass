@@ -1,4 +1,10 @@
 hyperglass/hyperglass/static
+.git
+.github
+docs
+.tests
+tests
+**/ssh.key
 **/node_modules
 **/node_modules/.pnpm
 .DS_Store

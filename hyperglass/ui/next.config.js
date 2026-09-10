@@ -9,6 +9,8 @@ const nextConfig = {
   },
   swcMinify: true,
   productionBrowserSourceMaps: true,
+  // Limit build subprocesses for the 3 CPU / 2 GiB Kubernetes container.
+  experimental: { cpus: 2 },
 };
 
 if (process.env.NODE_ENV === 'production') {

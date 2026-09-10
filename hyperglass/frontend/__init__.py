@@ -69,8 +69,16 @@ async def node_initial(timeout: int = 180, dev_mode: bool = False) -> str:
     if env_timeout is not None and env_timeout > timeout:
         timeout = env_timeout
 
+    # Containers carry a complete, locked dependency store. Startup must not
+    # resolve new packages or depend on package-registry availability.
+    from hyperglass.settings import Settings
+
+    command = "pnpm install --frozen-lockfile"
+    if Settings.container:
+        command += " --offline"
+
     proc = await asyncio.create_subprocess_shell(
-        cmd="pnpm install",
+        cmd=command,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
         cwd=ui_path,
@@ -338,11 +346,9 @@ async def build_frontend(  # noqa: C901
         env_build_id = env_data.get("HYPERGLASS_BUILD_ID", "None")
         log.bind(id=env_build_id).debug("Previous build detected")
 
-        if env_build_id == build_id:
+        if env_build_id == build_id and (app_path / "static" / "ui" / "index.html").is_file():
             log.debug("UI parameters unchanged since last build, skipping UI build...")
             return True
-
-    env_config.update({"HYPERGLASS_BUILD_ID": build_id})
 
     dot_env_file.write_text("\n".join(f"{k}={v}" for k, v in env_config.items()))
     log.bind(path=str(dot_env_file)).debug("Wrote UI environment file")
@@ -374,5 +380,10 @@ async def build_frontend(  # noqa: C901
         images_dir,
         params.web.theme.colors.black,
     )
+
+    # Record success only after the UI and its assets have been generated.
+    # A failed build must be retried on the next container start.
+    env_config.update({"HYPERGLASS_BUILD_ID": build_id})
+    dot_env_file.write_text("\n".join(f"{k}={v}" for k, v in env_config.items()))
 
     return True

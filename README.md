@@ -1,3 +1,5 @@
+> **X4B fork:** See [UPGRADE.md](UPGRADE.md) for the v2 container, compatibility choices, checks, and coordinated Kubernetes rollout.
+
 <div align="center">
   <br/>
   <img src="https://res.cloudinary.com/hyperglass/image/upload/v1593916013/logo-light.svg" width=300></img>

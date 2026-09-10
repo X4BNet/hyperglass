@@ -5,6 +5,7 @@ https://github.com/ktbyers/netmiko
 
 # Standard Library
 import math
+import asyncio
 from typing import Iterable
 
 # Third Party
@@ -36,6 +37,10 @@ class NetmikoConnection(SSHConnection):
     """Handle a device connection via Netmiko."""
 
     async def collect(self, host: str = None, port: int = None) -> Iterable:
+        """Run blocking Netmiko operations outside the API event loop."""
+        return await asyncio.to_thread(self._collect, host, port)
+
+    def _collect(self, host: str = None, port: int = None) -> Iterable:
         """Connect directly to a device.
 
         Directly connects to the router via Netmiko library, returns the
@@ -88,11 +93,12 @@ class NetmikoConnection(SSHConnection):
 
             responses = ()
 
-            for query in self.query:
-                raw = nm_connect_direct.send_command(query, **send_args)
-                responses += (raw,)
-
-            nm_connect_direct.disconnect()
+            try:
+                for query in self.query:
+                    raw = nm_connect_direct.send_command(query, **send_args)
+                    responses += (raw,)
+            finally:
+                nm_connect_direct.disconnect()
 
         except NetMikoTimeoutException as scrape_error:
             raise DeviceTimeout(error=scrape_error, device=self.device) from scrape_error
