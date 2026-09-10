@@ -43,7 +43,7 @@ async def _run_test_base_external_async():
 
     with pytest.raises(ExternalError):
         async with BaseExternal(base_url="https://httpbin.org", config=config, timeout=2) as client:
-            await client._get("/delay/4")
+            await client._aget("/delay/4")
 
 
 def test_base_external_async():
